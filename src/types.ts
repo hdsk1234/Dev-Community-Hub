@@ -11,6 +11,7 @@ export interface Hackathon {
   prize: string;
   schedule: { time: string; event: string }[];
   evaluation: string;
+  posterUrl?: string;
 }
 
 export interface Team {
@@ -48,7 +49,8 @@ export const MOCK_HACKATHONS: Hackathon[] = [
       { time: '03-01', event: '참가 접수 시작' },
       { time: '03-25', event: '결과물 제출 마감' },
       { time: '03-31', event: '최종 발표 및 시상' },
-    ]
+    ],
+    posterUrl: 'https://picsum.photos/seed/ai/800/450'
   },
   {
     id: '2',
@@ -66,7 +68,8 @@ export const MOCK_HACKATHONS: Hackathon[] = [
       { time: '01-10', event: '해커톤 킥오프' },
       { time: '02-10', event: '코드 프리징' },
       { time: '02-15', event: '데모 데이' },
-    ]
+    ],
+    posterUrl: 'https://picsum.photos/seed/web3/800/450'
   },
   {
     id: '3',
@@ -84,7 +87,8 @@ export const MOCK_HACKATHONS: Hackathon[] = [
       { time: '03-15', event: '아이디어 빌딩' },
       { time: '04-15', event: '프로토타입 제출' },
       { time: '04-20', event: '우수작 선정' },
-    ]
+    ],
+    posterUrl: 'https://picsum.photos/seed/green/800/450'
   }
 ];
 

@@ -66,6 +66,16 @@ export const HackathonListPage = () => {
               to={`/hackathons/${h.slug}`}
               className="group block bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-indigo-300 hover:shadow-lg transition-all"
             >
+              {h.posterUrl && (
+                <div className="aspect-video w-full overflow-hidden bg-slate-100">
+                  <img 
+                    src={h.posterUrl} 
+                    alt={h.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+              )}
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="space-y-1">

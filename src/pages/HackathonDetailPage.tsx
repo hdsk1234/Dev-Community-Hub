@@ -31,6 +31,18 @@ export const HackathonDetailPage = () => {
 
   return (
     <div className="space-y-8">
+      {/* Poster Banner */}
+      {hackathon.posterUrl && (
+        <div className="w-full h-64 md:h-96 rounded-3xl overflow-hidden bg-slate-100 border border-slate-200">
+          <img 
+            src={hackathon.posterUrl} 
+            alt={hackathon.title} 
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
