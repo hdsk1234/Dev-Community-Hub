@@ -6,8 +6,13 @@ import { HackathonListPage } from "./pages/HackathonListPage";
 import { HackathonDetailPage } from "./pages/HackathonDetailPage";
 import { CampPage } from "./pages/CampPage";
 import { RankingsPage } from "./pages/RankingsPage";
+import { LoginPage } from "./pages/LoginPage";
+import { SignupPage } from "./pages/SignupPage";
+import { MyPage } from "./pages/MyPage";
+import { AuthProvider } from "./components/AuthContext";
 import { motion } from "motion/react";
 import { useLocation } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
 const HomePage = () => (
   <div className="space-y-8">
@@ -90,6 +95,9 @@ const AnimatedRoutes = () => {
           <Route path="/hackathons/:slug" element={<PageWrapper><HackathonDetailPage /></PageWrapper>} />
           <Route path="/camp" element={<PageWrapper><CampPage /></PageWrapper>} />
           <Route path="/rankings" element={<PageWrapper><RankingsPage /></PageWrapper>} />
+          <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
+          <Route path="/signup" element={<PageWrapper><SignupPage /></PageWrapper>} />
+          <Route path="/mypage" element={<PageWrapper><MyPage /></PageWrapper>} />
         </Routes>
       </motion.div>
     </AnimatePresence>
@@ -98,31 +106,34 @@ const AnimatedRoutes = () => {
 
 export default function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
-        <Navbar />
-        <main>
-          <AnimatedRoutes />
-        </main>
-        
-        <footer className="border-t border-slate-200 py-12 mt-20 bg-white">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center text-white text-[10px] font-bold">DH</div>
-                <span className="font-bold text-slate-900">DevHub</span>
-              </div>
-              <div className="text-slate-400 text-sm">
-                © 2026 DevHub Community. All rights reserved.
-              </div>
-              <div className="flex space-x-6 text-sm font-medium text-slate-500">
-                <a href="#" className="hover:text-indigo-600">이용약관</a>
-                <a href="#" className="hover:text-indigo-600">개인정보처리방침</a>
+    <AuthProvider>
+      <Router>
+        <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
+          <Toaster position="top-center" reverseOrder={false} />
+          <Navbar />
+          <main>
+            <AnimatedRoutes />
+          </main>
+          
+          <footer className="border-t border-slate-200 py-12 mt-20 bg-white">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center text-white text-[10px] font-bold">DH</div>
+                  <span className="font-bold text-slate-900">DevHub</span>
+                </div>
+                <div className="text-slate-400 text-sm">
+                  © 2026 DevHub Community. All rights reserved.
+                </div>
+                <div className="flex space-x-6 text-sm font-medium text-slate-500">
+                  <a href="#" className="hover:text-indigo-600">이용약관</a>
+                  <a href="#" className="hover:text-indigo-600">개인정보처리방침</a>
+                </div>
               </div>
             </div>
-          </div>
-        </footer>
-      </div>
-    </Router>
+          </footer>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
