@@ -147,7 +147,7 @@ export const MyHackathonAll = () => {
                           : 'bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-600 hover:text-white'
                       }`}
                     >
-                      {h.isEvaluated ? '팀원 평가완료' : '팀원 평가하기'}
+                      {h.isEvaluated ? '뱃지 수여완료' : '뱃지 수여하기'}
                     </button>
                   )}
                   <button className="px-6 py-3.5 bg-slate-900 text-white rounded-2xl text-sm font-bold hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200">
