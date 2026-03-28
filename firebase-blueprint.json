@@ -1,0 +1,47 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "User profile information stored in Firestore",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "format": "email", "description": "User email address" },
+        "nickname": { "type": "string", "description": "User display name" },
+        "points": { "type": "number", "description": "User points/experience" },
+        "mannerTemp": { "type": "number", "description": "User manner temperature (0-100)" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation timestamp" }
+      },
+      "required": ["uid", "email", "nickname"]
+    },
+    "CampPost": {
+      "title": "Camp Recruitment Post",
+      "description": "Team recruitment posts for hackathons or projects",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Post ID" },
+        "authorUid": { "type": "string", "description": "UID of the author" },
+        "authorNickname": { "type": "string", "description": "Nickname of the author" },
+        "teamName": { "type": "string", "description": "Name of the team" },
+        "hackathonSlug": { "type": "string", "description": "Slug of the connected hackathon (optional)" },
+        "intro": { "type": "string", "description": "Team introduction" },
+        "positions": { "type": "array", "items": { "type": "string" }, "description": "Required positions" },
+        "contactLink": { "type": "string", "description": "Contact link (e.g., Open Kakao)" },
+        "isOpen": { "type": "boolean", "description": "Whether recruitment is open" },
+        "members": { "type": "array", "items": { "type": "string" }, "description": "List of member UIDs" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["authorUid", "teamName", "intro", "positions", "contactLink", "members"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Collection of user profiles"
+    },
+    "/camp_posts/{postId}": {
+      "schema": "CampPost",
+      "description": "Collection of team recruitment posts"
+    }
+  }
+}
