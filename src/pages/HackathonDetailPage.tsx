@@ -14,10 +14,26 @@ export const HackathonDetailPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [showTeamPopup, setShowTeamPopup] = useState(false);
 
-  const hackathon = MOCK_HACKATHONS.find(h => h.slug === slug);
+  // 1. 데이터 찾기
+  let hackathon = MOCK_HACKATHONS.find(h => h.slug === slug);
   const teams = MOCK_TEAMS.filter(t => t.hackathonSlug === slug);
 
-  if (!hackathon) return <div className="text-center py-20">해커톤을 찾을 수 없습니다.</div>;
+  // 🔥 B개발자의 엣지 케이스: 그린테크 챌린지일 경우 강제로 에러 UI 렌더링
+  if (slug === 'green-tech-challenge') {
+    hackathon = undefined;
+  }
+
+  // 🔥 B개발자의 상세 404 에러 UI 반영
+  if (!hackathon) return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center text-center">
+      <XCircle className="w-16 h-16 text-rose-500 mb-4" />
+      <h2 className="text-2xl font-black text-slate-900">해당 해커톤을 찾을 수 없습니다</h2>
+      <p className="text-slate-500 mt-2 mb-8">종료되었거나 삭제된 페이지일 수 있습니다.</p>
+      <Link to="/hackathons" className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors">
+        목록으로 돌아가기
+      </Link>
+    </div>
+  );
 
   const tabs: { id: TabType; label: string; icon: any }[] = [
     { id: 'overview', label: '개요', icon: Info },
@@ -43,8 +59,8 @@ export const HackathonDetailPage = () => {
         </div>
       )}
 
-      {/* Header */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+      {/* Header (B의 text-left 추가) */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm text-left">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4">
             <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${
@@ -82,8 +98,8 @@ export const HackathonDetailPage = () => {
         ))}
       </div>
 
-      {/* Tab Content */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-8 min-h-[400px]">
+      {/* Tab Content (B의 text-left 추가) */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-8 min-h-[400px] text-left">
         {activeTab === 'overview' && (
           <div className="prose prose-slate max-w-none">
             <h3 className="text-xl font-bold mb-4">해커톤 안내</h3>
@@ -102,7 +118,7 @@ export const HackathonDetailPage = () => {
         {activeTab === 'eval' && (
           <div className="space-y-6">
             <h3 className="text-xl font-bold">평가 기준</h3>
-            <div className="p-6 bg-indigo-50 rounded-2xl border border-indigo-100 text-indigo-900">
+            <div className="p-6 bg-indigo-50 rounded-2xl border border-indigo-100 text-indigo-900 font-medium">
               {hackathon.evaluation}
             </div>
           </div>
@@ -128,7 +144,7 @@ export const HackathonDetailPage = () => {
               <Trophy className="w-12 h-12 text-amber-600" />
             </div>
             <h3 className="text-3xl font-black text-slate-900">{hackathon.prize}</h3>
-            <p className="text-slate-500">우승팀에게는 상금과 함께 채용 연계 기회가 제공됩니다.</p>
+            <p className="text-slate-500 font-medium">우승팀에게는 상금과 함께 채용 연계 기회가 제공됩니다.</p>
           </div>
         )}
 
@@ -147,7 +163,7 @@ export const HackathonDetailPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {teams.map(team => (
-                <div key={team.id} className="p-6 border border-slate-200 rounded-2xl hover:border-indigo-200 transition-all group">
+                <div key={team.id} className="p-6 border border-slate-200 rounded-2xl hover:border-indigo-200 transition-all group bg-white">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h4 className="font-bold text-lg group-hover:text-indigo-600 transition-colors">{team.name}</h4>
@@ -165,9 +181,9 @@ export const HackathonDetailPage = () => {
                     ))}
                   </div>
                   <div className="flex gap-2">
-                    <button className="flex-1 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-100">초대</button>
-                    <button className="flex-1 py-2 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-100">수락</button>
-                    <button className="flex-1 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-bold hover:bg-red-100">거절</button>
+                    <button className="flex-1 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-all">초대</button>
+                    <button className="flex-1 py-2 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-100 transition-all">수락</button>
+                    <button className="flex-1 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-bold hover:bg-red-100 transition-all">거절</button>
                   </div>
                 </div>
               ))}
@@ -179,7 +195,7 @@ export const HackathonDetailPage = () => {
           <div className="max-w-2xl mx-auto space-y-8">
             <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100">
               <h4 className="font-bold text-blue-900 mb-2 flex items-center"><Info className="w-4 h-4 mr-2" /> 제출 가이드</h4>
-              <p className="text-sm text-blue-800/80 leading-relaxed">
+              <p className="text-sm text-blue-800/80 leading-relaxed font-medium">
                 결과물은 ZIP 파일(코드) 또는 PDF(기획서) 형식으로 제출해주세요. 
                 메모 섹션에는 프로젝트에 대한 간단한 설명과 실행 방법을 적어주시기 바랍니다.
               </p>
@@ -197,7 +213,7 @@ export const HackathonDetailPage = () => {
                 <label className="text-sm font-bold text-slate-700">파일 첨부 (ZIP, PDF, CSV)</label>
                 <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-indigo-400 transition-colors cursor-pointer group">
                   <FileUp className="w-8 h-8 text-slate-300 mx-auto mb-2 group-hover:text-indigo-500" />
-                  <p className="text-sm text-slate-500">파일을 드래그하거나 클릭하여 선택하세요</p>
+                  <p className="text-sm text-slate-500 font-medium">파일을 드래그하거나 클릭하여 선택하세요</p>
                 </div>
               </div>
               <button className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
@@ -220,7 +236,7 @@ export const HackathonDetailPage = () => {
                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-center">상태</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-50 font-medium text-slate-700">
                   {[
                     { rank: 1, name: 'AI 어벤져스', score: 98, submitted: true },
                     { rank: 2, name: '데이터 마법사', score: 92, submitted: true },
@@ -228,7 +244,7 @@ export const HackathonDetailPage = () => {
                   ].map((row, i) => (
                     <tr key={i} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-4 font-bold text-slate-900">{row.rank}</td>
-                      <td className="px-6 py-4 font-medium text-slate-700">{row.name}</td>
+                      <td className="px-6 py-4">{row.name}</td>
                       <td className="px-6 py-4 text-right font-mono text-indigo-600 font-bold">{row.score}</td>
                       <td className="px-6 py-4 text-center">
                         {row.submitted ? (
@@ -250,7 +266,7 @@ export const HackathonDetailPage = () => {
         )}
       </div>
 
-      {/* Popup Mock */}
+      {/* Popup Mock (B의 active:scale-95 등 추가) */}
       {showTeamPopup && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <motion.div 
@@ -262,20 +278,20 @@ export const HackathonDetailPage = () => {
               <AlertTriangle className="w-6 h-6" />
               <h3 className="text-xl font-bold">팀 구성 유의사항</h3>
             </div>
-            <p className="text-slate-600 text-sm leading-relaxed">
+            <p className="text-slate-600 text-sm leading-relaxed text-left font-medium">
               한 번 팀에 소속되면 해커톤 종료 시까지 팀 변경이 제한될 수 있습니다. 
               정말로 이 해커톤을 위한 팀을 구성하시겠습니까?
             </p>
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowTeamPopup(false)}
-                className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200"
+                className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-all active:scale-95"
               >
                 취소
               </button>
               <button 
                 onClick={() => setShowTeamPopup(false)}
-                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-100"
+                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95"
               >
                 확인 및 생성
               </button>
