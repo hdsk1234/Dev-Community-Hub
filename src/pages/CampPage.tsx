@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Users, Search, Plus, ExternalLink, Filter, 
-  MessageSquare, UserCircle, CheckCircle, X,
-  MessageCircle, FileText
+  Users, Plus, ExternalLink, Filter, 
+  MessageSquare, X, MessageCircle, FileText
 } from 'lucide-react';
 import { MOCK_HACKATHONS } from '../types';
-import { db, auth } from '../firebase';
+import { db } from '../firebase';
 import { 
   collection, addDoc, onSnapshot, query, orderBy, 
   serverTimestamp, where, Timestamp 
@@ -15,6 +14,8 @@ import {
 import { useAuth } from '../components/AuthContext';
 import { ChatRoom } from '../components/ChatRoom';
 import { toast } from 'react-hot-toast';
+// 🔥 새롭게 추가한 방어형 UI 컴포넌트 임포트
+import { StateViews } from '../components/StateViews'; 
 
 interface CampPost {
   id: string;
@@ -38,16 +39,21 @@ export const CampPage = () => {
   const { user, userProfile } = useAuth();
   const [activeChat, setActiveChat] = useState<{ id: string; name: string } | null>(null);
   
+  // 🔥 StateViews를 위한 상태 추가
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  
   // Form states
   const [teamName, setTeamName] = useState('');
   const [hackathonSlug, setHackathonSlug] = useState(hackathonFilter || '');
   const [intro, setIntro] = useState('');
   const [positionsInput, setPositionsInput] = useState('');
   const [contactLink, setContactLink] = useState('');
-  const [isOpen, setIsOpen] = useState(true); // 🔥 A개발자의 모집상태 제어 상태 복구
+  const [isOpen, setIsOpen] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true); // 데이터 패칭 시작 시 로딩 켬
     const q = hackathonFilter 
       ? query(collection(db, 'camp_posts'), where('hackathonSlug', '==', hackathonFilter), orderBy('createdAt', 'desc'))
       : query(collection(db, 'camp_posts'), orderBy('createdAt', 'desc'));
@@ -58,6 +64,11 @@ export const CampPage = () => {
         ...doc.data()
       })) as CampPost[];
       setPosts(fetchedPosts);
+      setIsLoading(false); // 패칭 완료 시 로딩 끔
+    }, (err) => {
+      console.error("Firebase Error: ", err);
+      setError(new Error('데이터를 불러오는 중 문제가 발생했습니다.'));
+      setIsLoading(false);
     });
 
     return () => unsubscribe();
@@ -65,17 +76,13 @@ export const CampPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast.error('로그인이 필요합니다.');
-      return;
-    }
+    if (!user) return toast.error('로그인이 필요합니다.');
 
     const isKakao = contactLink.includes('open.kakao.com');
     const isGoogle = contactLink.includes('forms.gle') || contactLink.includes('docs.google.com/forms');
 
     if (!isKakao && !isGoogle) {
-      toast.error('연락 링크는 카카오톡 오픈채팅(open.kakao.com) 또는 구글폼(forms.gle / docs.google.com/forms)만 가능합니다.');
-      return;
+      return toast.error('연락 링크는 카카오톡 오픈채팅이나 구글폼만 가능합니다.');
     }
 
     setSubmitting(true);
@@ -94,19 +101,14 @@ export const CampPage = () => {
         intro,
         positions,
         contactLink: finalContactLink,
-        isOpen, // 🔥 A개발자의 기획대로 DB에 반영되도록 수정
+        isOpen,
         members: [user.uid],
         createdAt: serverTimestamp(),
       });
       toast.success('모집글이 등록되었습니다!');
       setShowForm(false);
-      setTeamName('');
-      setIntro('');
-      setPositionsInput('');
-      setContactLink('');
-      setIsOpen(true);
-    } catch (error) {
-      console.error('Error adding post:', error);
+      setTeamName(''); setIntro(''); setPositionsInput(''); setContactLink(''); setIsOpen(true);
+    } catch (err) {
       toast.error('모집글 등록에 실패했습니다.');
     } finally {
       setSubmitting(false);
@@ -114,25 +116,9 @@ export const CampPage = () => {
   };
 
   const getLinkInfo = (url: string) => {
-    if (url.includes('open.kakao.com')) {
-      return {
-        icon: <MessageCircle className="w-5 h-5" />,
-        label: '오픈채팅',
-        color: 'text-amber-600 bg-amber-50 hover:bg-amber-100',
-      };
-    }
-    if (url.includes('forms.gle') || url.includes('docs.google.com/forms')) {
-      return {
-        icon: <FileText className="w-5 h-5" />,
-        label: '구글폼',
-        color: 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100',
-      };
-    }
-    return {
-      icon: <ExternalLink className="w-5 h-5" />,
-      label: '링크',
-      color: 'text-slate-400 bg-slate-50 hover:bg-indigo-50',
-    };
+    if (url.includes('open.kakao.com')) return { icon: <MessageCircle className="w-5 h-5" />, label: '오픈채팅', color: 'text-amber-600 bg-amber-50 hover:bg-amber-100' };
+    if (url.includes('forms.gle') || url.includes('docs.google.com/forms')) return { icon: <FileText className="w-5 h-5" />, label: '구글폼', color: 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100' };
+    return { icon: <ExternalLink className="w-5 h-5" />, label: '링크', color: 'text-slate-400 bg-slate-50 hover:bg-indigo-50' };
   };
 
   const selectedHackathon = MOCK_HACKATHONS.find(h => h.slug === hackathonFilter);
@@ -171,7 +157,6 @@ export const CampPage = () => {
             </select>
           </div>
 
-          {/* 🔥 A개발자의 팀 빌딩 팁 유지 */}
           <div className="bg-indigo-900 p-6 rounded-2xl text-white space-y-4">
             <h3 className="font-bold">팀 빌딩 팁</h3>
             <p className="text-sm text-indigo-200 leading-relaxed">
@@ -180,14 +165,25 @@ export const CampPage = () => {
           </div>
         </div>
 
-        {/* Team List */}
+        {/* Team List (🔥 StateViews로 래핑됨) */}
         <div className="lg:col-span-2 space-y-4">
-          {posts.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
-              <p className="text-slate-400 font-bold">등록된 모집글이 없습니다.</p>
-            </div>
-          ) : (
-            posts.map((post, i) => (
+          <StateViews
+            isLoading={isLoading}
+            error={error}
+            isEmpty={!isLoading && posts.length === 0}
+            loadingMessage="팀 모집글을 실시간으로 불러오는 중입니다..."
+            emptyTitle="등록된 팀 모집글이 없습니다"
+            emptyMessage="조건에 맞는 모집글이 없습니다. 첫 번째 팀을 꾸려보세요!"
+            emptyAction={
+              <button 
+                onClick={() => setShowForm(true)} 
+                className="mt-4 px-6 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-bold hover:bg-indigo-100 transition-colors"
+              >
+                첫 모집글 작성하기
+              </button>
+            }
+          >
+            {posts.map((post, i) => (
               <motion.div key={post.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                 className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-indigo-300 transition-all shadow-sm group"
               >
@@ -229,8 +225,8 @@ export const CampPage = () => {
                   </div>
                 </div>
               </motion.div>
-            ))
-          )}
+            ))}
+          </StateViews>
         </div>
       </div>
 
@@ -273,15 +269,8 @@ export const CampPage = () => {
                 <input type="text" required value={contactLink} onChange={(e) => setContactLink(e.target.value)} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500" placeholder="오픈카톡, 구글폼 등" />
               </div>
               
-              {/* 🔥 A개발자의 모집 상태 토글 복구 */}
               <div className="flex items-center space-x-2">
-                <input 
-                  type="checkbox" 
-                  id="isOpen" 
-                  checked={isOpen}
-                  onChange={(e) => setIsOpen(e.target.checked)}
-                  className="w-4 h-4 text-indigo-600 rounded" 
-                />
+                <input type="checkbox" id="isOpen" checked={isOpen} onChange={(e) => setIsOpen(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded" />
                 <label htmlFor="isOpen" className="text-sm font-medium text-slate-700 cursor-pointer">현재 팀원 모집 중</label>
               </div>
 

@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Trophy, Medal, TrendingUp, Calendar, Search } from 'lucide-react';
+import { Trophy, Medal, TrendingUp } from 'lucide-react';
 import { MOCK_RANKINGS } from '../types';
-// 🔥 새롭게 추가한 방어형 UI 컴포넌트 임포트
 import { StateViews } from '../components/StateViews';
 
 export const RankingsPage = () => {
   const [period, setPeriod] = useState<'7d' | '30d' | 'all'>('all');
-  
-  // 🔥 StateViews 애니메이션 시연을 위한 로딩 상태 추가
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // 탭을 변경할 때마다 0.4초간 로딩 UI를 보여주어 방어형 로직 시연
     setIsLoading(true);
     const timer = setTimeout(() => setIsLoading(false), 400);
     return () => clearTimeout(timer);
@@ -20,6 +16,7 @@ export const RankingsPage = () => {
 
   return (
     <div className="space-y-8">
+      {/* 1. 상단 헤더 및 기간 필터 대시보드 */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">글로벌 랭킹</h1>
@@ -47,19 +44,21 @@ export const RankingsPage = () => {
         </div>
       </div>
 
-      {/* 🔥 리스트 영역 전체를 StateViews로 감싸기 */}
       <StateViews 
         isLoading={isLoading} 
         loadingMessage="랭킹 데이터를 불러오는 중입니다..."
       >
-        {/* Top 3 Podium Mock (원본 유지) */}
+        {/* 2. Top 3 포디움 영역 (회전 방지 적용) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end pt-8">
-          {/* 2nd */}
+          
+          {/* 🥈 2nd - 순서를 1등 뒤로 보내어 first-child 저격을 피함 */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-4 order-2 md:order-1 h-[280px] flex flex-col justify-center"
+            key={`rank-2-${period}`}
+            initial={{ opacity: 0, y: 20, rotate: 0 }}
+            animate={{ opacity: 1, y: 0, rotate: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            style={{ order: 2 }} // 시각적 위치 고정
+            className="bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-4 md:order-1 h-[280px] flex flex-col justify-center shadow-sm"
           >
             <div className="relative inline-block">
               <div className="w-20 h-20 bg-slate-100 rounded-full mx-auto flex items-center justify-center border-4 border-slate-200">
@@ -73,11 +72,14 @@ export const RankingsPage = () => {
             </div>
           </motion.div>
 
-          {/* 1st */}
+          {/* 🏆 1st - 코드상 첫 번째 요소로 배치 */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-indigo-600 rounded-3xl p-8 text-center space-y-4 order-1 md:order-2 h-[320px] flex flex-col justify-center shadow-xl shadow-indigo-200"
+            key={`rank-1-${period}`}
+            initial={{ opacity: 0, y: 20, rotate: 0 }}
+            animate={{ opacity: 1, y: 0, rotate: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{ order: 1 }}
+            className="bg-indigo-600 rounded-3xl p-8 text-center space-y-4 md:order-2 h-[320px] flex flex-col justify-center shadow-xl shadow-indigo-200"
           >
             <div className="relative inline-block">
               <div className="w-24 h-24 bg-indigo-500 rounded-full mx-auto flex items-center justify-center border-4 border-indigo-400">
@@ -91,12 +93,14 @@ export const RankingsPage = () => {
             </div>
           </motion.div>
 
-          {/* 3rd */}
+          {/* 🥉 3rd */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-4 order-3 h-[240px] flex flex-col justify-center"
+            key={`rank-3-${period}`}
+            initial={{ opacity: 0, y: 20, rotate: 0 }}
+            animate={{ opacity: 1, y: 0, rotate: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            style={{ order: 3 }}
+            className="bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-4 h-[240px] flex flex-col justify-center shadow-sm"
           >
             <div className="relative inline-block">
               <div className="w-16 h-16 bg-orange-50 rounded-full mx-auto flex items-center justify-center border-4 border-orange-100">
@@ -111,7 +115,7 @@ export const RankingsPage = () => {
           </motion.div>
         </div>
 
-        {/* Table (원본 유지) */}
+        {/* 3. 전체 랭킹 테이블 (복구 완료) */}
         <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm mt-8">
           <table className="w-full text-left">
             <thead className="bg-slate-50 border-b border-slate-100">
@@ -123,7 +127,7 @@ export const RankingsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {MOCK_RANKINGS.map((user, i) => (
+              {MOCK_RANKINGS.map((user) => (
                 <tr key={user.nickname} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-8 py-5">
                     <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${
