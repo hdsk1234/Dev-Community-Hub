@@ -1,6 +1,6 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AnimatePresence } from "motion/react";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom"; // 💡 Link가 추가되었습니다!
+import { AnimatePresence, motion } from "motion/react";
 import { Navbar } from "./components/Navbar";
 import { HackathonListPage } from "./pages/HackathonListPage";
 import { HackathonDetailPage } from "./pages/HackathonDetailPage";
@@ -10,8 +10,6 @@ import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
 import { MyPage } from "./pages/MyPage";
 import { AuthProvider } from "./components/AuthContext";
-import { motion } from "motion/react";
-import { useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 const HomePage = () => (
@@ -59,9 +57,11 @@ const HomePage = () => (
           <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${card.color} mb-4 shadow-lg shadow-indigo-100`} />
           <h3 className="text-xl font-bold text-slate-900 mb-2">{card.title}</h3>
           <p className="text-slate-500 text-sm leading-relaxed mb-4">{card.desc}</p>
-          <a href={card.path} className="inline-flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-700">
+          
+          {/* 💡 핵심 수정 부분: <a href> 대신 <Link to>를 사용하여 부드러운 화면 전환! */}
+          <Link to={card.path} className="inline-flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-700">
             자세히 보기 →
-          </a>
+          </Link>
         </motion.div>
       ))}
     </div>
